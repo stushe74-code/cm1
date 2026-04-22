@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Verilog Program Viewer</title>
+<style>
+body{
+    margin:0;
+    background:#111;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+}
+h1{
+    text-align:center;
+    background:#000;
+    margin:0;
+    padding:18px;
+}
+.menu{
+    text-align:center;
+    padding:15px;
+}
+button{
+    padding:10px 18px;
+    margin:5px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:18px;
+    background:#00bcd4;
+    color:#fff;
+}
+button:hover{
+    background:#0097a7;
+}
+#out{
+    width:95%;
+    margin:auto;
+    background:#1f1f1f;
+    min-height:600px;
+    padding:20px;
+    box-sizing:border-box;
+    white-space:pre-wrap;
+    overflow:auto;
+    border-radius:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>VERILOG PROGRAM VIEWER</h1>
+
+<div class="menu">
+<button onclick="show(1)">1</button>
+<button onclick="show(2)">2</button>
+<button onclick="show(3)">3</button>
+<button onclick="show(4)">4</button>
+<button onclick="show(5)">5</button>
+<button onclick="show(6)">6</button>
+</div>
+
+<div id="out">Click any button to view program.</div>
+
+<script>
+const data = {
+
+1:`PROGRAM 1
+
+module inverter (out, in); 
+output out;  
+input in;
+supply1 pwr; 
+supply0 gnd; 
+pmos (out,pwr,in); 
+nmos (out,gnd,in); 
+endmodule 
+
+Test bench
+module inv_test; 
+wire out ; 
+reg in ; 
+inverter i1(out, in) ; 
+initial begin
+in = 1'b0 ; #10 ;
+in = 1'b1 ; #10 ;
+in = 1'bx ; #10 ;
+in = 1'bz ; #10 ;
+end
+endmodule
+
+Gate level
+module inv(a,y);
+input a;
+output y;
+assign y = ~a;
+endmodule
+
+Test bench
+module invtb;
+reg a; wire y;
+inv i1(a,y);
+initial begin
+a = 0; #10;
+a = 1; #10;
+#50 $finish;
+end
+endmodule`,
+
+2:`PROGRAM 2
+
+module inverter (Y, A); 
+output Y; 
+input A;  
+supply1 pwr; 
+supply0 gnd;    
+endmodule 
+
+module buffer (out, in); 
+output out;
+input in;
+wire a;
+inverter i1(a,in);
+inverter i2(out,a);
+endmodule
+
+TEST BENCH
+
+module buf_test;
+wire out;
+reg in;
+buffer b1(out,in);
+
+initial begin
+in = 1'b0; #10;
+in = 1'b1; #10;
+in = 1'bx; #10;
+in = 1'bz; #10;
+end
+endmodule
+
+Gate level Buffer
+
+module buffer(a,y);
+input a;
+output y;
+assign y=a;
+endmodule
+
+Test Bench
+module buffer_tb;
+reg a;
+wire y;
+buffer i1(a,y);
+
+initial begin
+a=0; #10;
+a=1; #10;
+a=0; #10;
+a=1;
+end
+endmodule`,
+
+3:`PROGRAM 3
+
+AND gate
+module and_gate(a,b,y);
+input a,b;
+output y;
+assign y = a & b;
+endmodule
+
+Test Bench:
+module and_gate_tb;
+reg a,b;
+wire y;
+and_gate i1(a,b,y);
+initial
+begin
+a = 0; b = 0; #10;
+a = 0; b = 1; #10;
+a = 1; b = 0; #10;
+a = 1; b = 1; #10;
+#50 $finish;
+end
+endmodule
+
+
+OR gate
+module or_gate(a,b,y);
+input a,b;
+output y;
+assign y = a | b;
+endmodule
+
+Test Bench:
+module or_gate_tb;
+reg a,b;
+wire y;
+or_gate i1(a,b,y);
+initial
+begin
+a = 0; b = 0; #10;
+a = 0; b = 1; #10;
+a = 1; b = 0; #10;
+a = 1; b = 1; #10;
+#50 $finish;
+end
+endmodule
+
+
+NAND gate
+module nand_gate(a,b,y);
+input a,b;
+output y;
+assign y = ~(a & b);
+endmodule
+
+Test Bench:
+module nand_gate_tb;
+reg a,b;
+wire y;
+nand_gate i1(a,b,y);
+initial
+begin
+a = 0; b = 0; #10;
+a = 0; b = 1; #10;
+a = 1; b = 0; #10;
+a = 1; b = 1; #10;
+#50 $finish;
+end
+endmodule
+
+
+NOR gate
+module nor_gate(a,b,y);
+input a,b;
+output y;
+assign y = ~(a | b);
+endmodule
+
+Test Bench:
+module nor_gate_tb;
+reg a,b;
+wire y;
+nor_gate i1(a,b,y);
+initial
+begin
+a = 0; b = 0; #10;
+a = 0; b = 1; #10;
+a = 1; b = 0; #10;
+a = 1; b = 1; #10;
+#50 $finish;
+end
+endmodule`,
+
+4:`PROGRAM 4
+
+SR Flip-flop:
+module SR_ff(q,qbar,s,r,clk);
+output q,qbar;
+input clk,s,r;
+reg tq;
+always @(posedge clk or tq)
+begin
+if(s==1'b0 && r==1'b0)
+tq<=tq;
+else if(s==1'b0 && r==1'b1)
+tq<=1'b0;
+else if(s==1'b1 && r==1'b0)
+tq<=1'b1;
+else if(s==1'b1 && r==1'b1)
+tq<=1'bx;
+end
+assign q=tq;
+assign qbar=~tq;
+endmodule
+
+Test Bench:
+module SR_ff_test;
+reg clk,s,r;
+wire q,qbar;
+SR_ff sr1(q,qbar,s,r,clk);
+initial clk=1'b0;
+always #10 clk=~clk;
+initial begin
+s=1'b0; r=1'b0;
+#30 s=1'b1;
+#29 s=1'b0;
+#1 r=1'b1;
+#30 s=1'b1;
+#30 r=1'b0;
+end
+initial #500 $finish;
+endmodule
+
+D Flip-Flop:
+module d_ff(q,clk,n_rst,din);
+output q;
+input clk,din,n_rst;
+reg q;
+always @(posedge clk or negedge n_rst)
+begin
+if(!n_rst)
+q<=1'b0;
+else
+q<=din;
+end
+endmodule
+
+Test Bench:
+module d_ff_test;
+reg clk,din,n_rst;
+wire q;
+d_ff df1(q,clk,n_rst,din);
+initial clk=1'b0;
+always #10 clk=~clk;
+initial begin
+din=1'b0;
+n_rst=1'b1;
+#20 n_rst=1'b0;
+#20 n_rst=1'b1;
+#20 din=1'b1;
+end
+initial #100 $finish;
+endmodule
+
+T Flip-Flop:
+module t_ff(q,qbar,clk,tin,rst);
+output q,qbar;
+input clk,tin,rst;
+reg tq;
+always @(posedge clk or negedge rst)
+begin
+if(!rst)
+tq<=1'b0;
+else if(tin)
+tq<=~tq;
+end
+assign q=tq;
+assign qbar=~q;
+endmodule
+
+Test Bench:
+module t_ff_test;
+reg clk,tin,rst;
+wire q,qbar;
+t_ff t1(q,qbar,clk,tin,rst);
+initial clk=1'b0;
+always #10 clk=~clk;
+initial begin
+rst=1'b0;
+tin=1'b0;
+#30 rst=1'b1;
+#10 tin=1'b1;
+end
+initial #200 $finish;
+endmodule
+
+JK Flip-Flop:
+module jk_ff(q,qbar,clk,rst,j,k);
+input clk,rst,j,k;
+output q,qbar;
+reg q,tq;
+always @(posedge clk or negedge rst)
+begin
+if(!rst)
+begin
+q<=1'b0;
+tq<=1'b0;
+end
+else begin
+if(j==1'b1 && k==1'b0)
+q<=1'b1;
+else if(j==1'b0 && k==1'b1)
+q<=1'b0;
+else if(j==1'b1 && k==1'b1)
+begin
+tq<=~tq;
+q<=tq;
+end
+end
+end
+assign qbar=~q;
+endmodule
+
+Test Bench:
+module jk_ff_test;
+reg clk,rst,j,k;
+wire q,qbar;
+jk_ff inst(q,qbar,clk,rst,j,k);
+initial clk=1'b0;
+always #10 clk=~clk;
+initial begin
+rst=1'b0; j=0; k=0;
+#10 rst=1'b1;
+#10 j=1; k=0;
+#20 j=0; k=1;
+#20 j=1; k=1;
+end
+initial #300 $finish;
+endmodule
+
+MS JK Flip-Flop:
+module ms_jkff(q,q_bar,clk,j,k); 
+output q,q_bar; input clk,j,k; 
+reg tq,q,q_bar; 
+always @(clk) begin 
+if (!clk) 
+begin if (j==1'b0 && k==1'b1) 
+tq <= 1'b0; 
+else if (j==1'b1 && k==1'b0) 
+tq <= 1'b1; else if (j==1'b1 && k==1'b1) 
+tq <= ~tq; 
+end 
+if (clk) 
+begin q <= tq; q_bar <= ~tq; 
+end 
+end 
+endmodule 
+ 
+Test Bench:  
+module tb_ms_jkff; 
+reg clk,j,k; 
+wire q,q_bar;
+ms_jkff inst(q,q_bar,clk,j,k); 
+initial clk = 1'b0; always #10 clk = ~clk; 
+initial begin j = 1'b0; k = 1'b0; #60 j = 1'b0; k = 1'b1; 
+#40 j = 1'b1; k = 1'b0; 
+#20 j = 1'b1; k = 1'b1; 
+#40 j = 1'b1; k = 1'b0; 
+#5 j = 1'b0; #20 j = 1'b1; #10; 
+end 
+initial 
+#250 $finish; 
+endmodule`,
+
+5:`PROGRAM 5
+
+Asynchronous Counter:
+module rip_ctr(clock,toggle,reset,count);
+input clock,toggle,reset;
+output [3:0] count;
+reg [3:0] count;
+always @(posedge clock or posedge reset)
+if(reset)
+count<=4'b0000;
+else if(toggle)
+count<=count+1;
+endmodule
+
+TEST BENCH:
+module rip_ctr_t;
+reg clock,toggle,reset;
+wire [3:0] count;
+rip_ctr a1(clock,toggle,reset,count);
+initial clock=1'b0;
+always #5 clock=~clock;
+initial begin
+reset=1'b0; toggle=1'b0;
+#10 reset=1'b1; toggle=1'b1;
+#10 reset=1'b0;
+#450 $finish;
+end
+endmodule
+
+Synchronous Counter:
+module counter_behav(count,reset,clk);
+input reset,clk;
+output reg [3:0] count;
+always @(posedge clk)
+if(reset)
+count=4'b0000;
+else
+count=count+1;
+endmodule
+
+TEST BENCH:
+module mycounter_t;
+wire [3:0] count;
+reg reset,clk;
+initial clk=1'b0;
+always #5 clk=~clk;
+counter_behav m1(count,reset,clk);
+initial begin
+reset=1'b0;
+#15 reset=1'b1;
+#30 reset=1'b0;
+#300 $finish;
+end
+endmodule`,
+
+6:`PROGRAM 6
+
+FULL ADDER
+module fulladd(cin,x,y,s,cout);
+input cin,x,y;
+output s,cout;
+assign s=x^y^cin;
+assign cout=(x&y)|(x&cin)|(y&cin);
+endmodule
+
+PARALLEL ADDER
+module adder4(carryin,x,y,sum,carryout);
+input carryin;
+input [3:0] x,y;
+output [3:0] sum;
+output carryout;
+fulladd stage0(carryin,x[0],y[0],sum[0],c1);
+fulladd stage1(c1,x[1],y[1],sum[1],c2);
+fulladd stage2(c2,x[2],y[2],sum[2],c3);
+fulladd stage3(c3,x[3],y[3],sum[3],carryout);
+endmodule
+
+TEST BENCH:
+module adder4_t;
+reg [3:0] x,y;
+reg carryin;
+wire [3:0] sum;
+wire carryout;
+adder4 a1(carryin,x,y,sum,carryout);
+initial begin
+x=4'b0000; y=4'b0000; carryin=1'b0;
+#20 x=4'b1111; y=4'b1010;
+#40 x=4'b1011; y=4'b0110;
+#40 x=4'b1111; y=4'b1111;
+#150 $finish;
+end
+endmodule`
+
+};
+
+function show(n){
+document.getElementById("out").textContent = data[n];
+}
+</script>
+
+</body>
+</html>
